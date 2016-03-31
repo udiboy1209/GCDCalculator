@@ -19,17 +19,12 @@ def pr(a):
     outstr += '{:016b}\n'.format(q)
     f.write(outstr)
 
-def rng(a,b):
+def rng(a):
     l = [];
-    for i in range(4):
-        q = int(random()*500)
+    for i in range(8):
+        q = int(random()*511)+1
         l.append(q*a)
-        q = int(random()*500)
-        l.append(q*b)
     pr(l)
 
-rng(20,15)
-rng(80,74)
-rng(30,45)
-rng(26,39)
-rng(117,91)
+for i in range(1000):
+    rng(int(random()*127)+1)
