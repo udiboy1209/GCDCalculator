@@ -179,13 +179,13 @@ architecture Mixed of DividerDataPath is
     signal BREG: std_logic_vector(15 downto 0);
     signal COUNT: std_logic_vector(4 downto 0);
     signal TDIFF: std_logic_vector(16 downto 0);
-    signal REMAINDER: std_logic_vector(31 downto 0);
+    signal REMAINDER: std_logic_vector(32 downto 0);
     signal QUOTIENT: std_logic_vector(15 downto 0);
 
     signal BREG_in, RESULT_QUOTIENT_in, RESULT_REMAINDER_in: std_logic_vector(15 downto 0);
     signal COUNT_in: std_logic_vector(4 downto 0);
     signal TDIFF_in: std_logic_vector(16 downto 0);
-    signal REMAINDER_in: std_logic_vector(31 downto 0);
+    signal REMAINDER_in: std_logic_vector(32 downto 0);
     signal QUOTIENT_in: std_logic_vector(15 downto 0);
    
     signal subA,subB: std_logic_vector(15 downto 0);
@@ -246,12 +246,12 @@ begin
     -------------------------------------------------
     -- REMANIDER related logic
     -------------------------------------------------
-    REMAINDER_in <= TDIFF(14 downto 0) & REMAINDER(15 downto 0) & '0' when TDIFF(16) = '0' and T8 = '1'
-                    else REMAINDER(30 downto 0) & '0' when T8 = '1'
-                    else C31 & A & '0';
+    REMAINDER_in <= TDIFF(15 downto 0) & REMAINDER(15 downto 0) & '0' when TDIFF(16) = '0' and T8 = '1'
+                    else REMAINDER(31 downto 0) & '0' when T8 = '1'
+                    else C32 & A & '0';
 
     remainder_enable <= T4 or T8;
-    rr: DataRegister generic map(data_width => 32)
+    rr: DataRegister generic map(data_width => 33)
                      port map(Din => REMAINDER_in, Dout => REMAINDER, Enable => remainder_enable, clk => clk);
 
     -------------------------------------------------
@@ -272,7 +272,7 @@ begin
     rqr: DataRegister generic map(data_width => 16)
 			port map(Din => RESULT_QUOTIENT_in, Dout => RESULT_QUOTIENT, Enable => result_enable, clk => clk);
 
-    RESULT_REMAINDER_in <= '0' & REMAINDER(31 downto 17);
+    RESULT_REMAINDER_in <= REMAINDER(32 downto 17);
     rrr: DataRegister generic map(data_width => 16)
 			port map(Din => RESULT_REMAINDER_in, Dout => RESULT_REMAINDER, Enable => result_enable, clk => clk);
 
