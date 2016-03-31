@@ -37,6 +37,19 @@ architecture Behave of Testbench is
      return(ret_var);
   end to_std_logic_vector;
 
+  function to_bit_vector(x: std_logic_vector) return bit_vector is
+    alias lx: std_logic_vector(1 to x'length) is x;
+    variable ret_var : bit_vector(1 to x'length);
+  begin
+     for I in 1 to x'length loop
+        if(lx(I) = '1') then
+           ret_var(I) :=  '1';
+        else
+           ret_var(I) :=  '0';
+	end if;
+     end loop;
+     return(ret_var);
+  end to_bit_vector;
 begin
   clk <= not clk after 5 ns; -- assume 10ns clock.
 
@@ -72,7 +85,6 @@ begin
     while not endfile(INFILE) loop 
     	  wait until clk = '0';
 
-          LINE_COUNT := LINE_COUNT + 1;
 	
 
           --------------------------------------
@@ -81,6 +93,7 @@ begin
 
           -- set start
           if(stream_end = '1') then
+              LINE_COUNT := LINE_COUNT + 1;
               readLine (INFILE, INPUT_LINE);
               start <= '1';
               stream_end := '0';
@@ -103,10 +116,10 @@ begin
               if (RESULT /= to_std_logic_vector(Result_var)) then
                  write(OUTPUT_LINE,to_string("ERROR: in RESULT, line "));
                  write(OUTPUT_LINE, LINE_COUNT);
-                 -- write(OUTPUT_LINE, to_string(" QUO: "));
-                 -- write(OUTPUT_LINE, RESULT_QUOTIENT);
-                 -- write(OUTPUT_LINE, to_string(" REM: "));
-                 -- write(OUTPUT_LINE, RESULT_REMAINDER);
+                 write(OUTPUT_LINE, to_string(" RES: "));
+                 write(OUTPUT_LINE, to_bit_vector(RESULT));
+                 write(OUTPUT_LINE, to_string(" EXP: "));
+                 write(OUTPUT_LINE, Result_var);
                  writeline(OUTFILE, OUTPUT_LINE);
                  err_flag := true;
               end if;
