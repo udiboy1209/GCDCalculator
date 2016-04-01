@@ -2,5 +2,7 @@
 *.cf
 *.vcd
 
+TRACEFILE.txt
+scan_input.txt
 testbench
 OUTPUTS.txt
