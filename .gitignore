@@ -4,5 +4,5 @@
 
 TRACEFILE.txt
 scan_input.txt
-testbench
+test*
 OUTPUTS.txt
