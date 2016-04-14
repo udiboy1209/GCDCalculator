@@ -17,10 +17,13 @@ package RTLComponents is
   end component Subtractor32;
 	
   -- 6-bit decrementer.
-  component Decrement6 is
+  component Decrement5 is
         port (A: in std_logic_vector(4 downto 0); B: out std_logic_vector(4 downto 0));
-  end component Decrement6;
+  end component Decrement5;
 
+  component Increment5 is
+        port (A: in std_logic_vector(4 downto 0); B: out std_logic_vector(4 downto 0));
+  end component Increment5;
 end package;
 
 library ieee;
@@ -77,6 +80,25 @@ begin
     for I in 0 to 4 loop
        B(I) <= A(I) xor borrow;
        borrow := borrow and (not A(I));
+    end loop;
+  end process; 
+end Serial;
+
+library ieee;
+use ieee.std_logic_1164.all;
+entity Increment5 is
+   port (A: in std_logic_vector(4 downto 0); B: out std_logic_vector(4 downto 0));
+end entity Increment5;
+
+architecture Serial of Increment5 is
+begin
+  process(A)
+    variable carry: std_logic;
+  begin 
+    carry := '1';
+    for I in 0 to 4 loop
+       B(I) <= A(I) xor carry;
+       carry := carry and A(I);
     end loop;
   end process; 
 end Serial;

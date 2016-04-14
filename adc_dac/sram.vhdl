@@ -20,20 +20,8 @@ end entity;
 architecture FSM of SRAMInterface is
     signal fsm_state: fsm_states := rst;
     signal write_wait_count, read_wait_count : integer;
-
-    component DataRegister is
-        generic (data_width:integer);
-        port (Din: in std_logic_vector(data_width-1 downto 0);
-              Dout: out std_logic_vector(data_width-1 downto 0);
-              clk, enable: in std_logic);
-    end component DataRegister;
-
-    -- 6-bit decrementer.
-    component Decrement5 is
-        port (A: in std_logic_vector(4 downto 0); B: out std_logic_vector(4 downto 0));
-    end component Decrement5;
 begin
-    process(IO) is
+    process(IO, start, clk, reset, WR_DATA, IO, ADDR_DATA) is
         variable nstate : fsm_states := fsm_state;
         variable CS_var, WE_var, OE_var, done_var: std_logic;
         variable ADDR_var: std_logic_vector(12 downto 0);
