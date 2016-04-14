@@ -17,7 +17,10 @@ entity CCU is
         -- smc pins
         ADDR: out std_logic_vector(12 downto 0);
         IO: inout std_logic_vector(7 downto 0);
-        CS_SRAM, WE, OE: out std_logic
+        CS_SRAM, WE, OE: out std_logic;
+		  
+		  clk_div_out : out std_logic;
+		  clk_khz_out : out std_logic
     );
 
     type fsm_states is (rst,capturestate,sramstore,displaystate,donestate);
@@ -27,7 +30,6 @@ architecture FSM of CCU is
     signal clk, khz_clk : std_logic;
 
     signal fsm_state: fsm_states := rst;
-    signal clock_count: integer;
 
     signal adc_convert, adc_ready: std_logic;
     signal adc_out : std_logic_vector(7 downto 0);
@@ -44,7 +46,7 @@ architecture FSM of CCU is
             ADDR_DATA: in std_logic_vector(12 downto 0);
             WR_DATA: in std_logic_vector(7 downto 0);
             RD_DATA: out std_logic_vector(7 downto 0);
-            start, write, clk, reset: in std_logic;
+            start, rd_wr, clk, reset: in std_logic;
             done: out std_logic
         );
     end component;
@@ -65,22 +67,43 @@ architecture FSM of CCU is
         port ( clk_in : in std_logic; clk_out : out std_logic);
     end component;
 begin
-    adcc : ADCInterface port map (ADC_DATA => ADC_DATA, CS => CS_ADC, WR => WR, RD => RD, INTR => INTR, LED => adc_out, start => adc_convert, done => adc_ready, clk => clk, reset => reset);
+    clk_div_out <= clk;
+	 clk_khz_out <= khz_clk;
 
-    smc : SRAMInterface port map (ADDR => ADDR, CS => CS_SRAM, WE => WE, OE => OE, ADDR_DATA => sram_addr, WR_DATA => sram_write_data, RD_DATA => sram_read_data, start => sram_start, done => sram_ready, write => sram_write, reset => reset, clk => clk);
+    adcc : ADCInterface port map (
+            ADC_DATA => ADC_DATA, 
+				CS => CS_ADC, 
+				WR => WR, RD => RD, INTR => INTR, 
+				LED => adc_out, 
+				start => adc_convert, 
+				done => adc_ready, 
+				clk => clk, 
+				reset => reset
+        );
+
+    smc : SRAMInterface port map (
+	         ADDR => ADDR, 
+				CS => CS_SRAM, WE => WE, OE => OE, 
+				ADDR_DATA => sram_addr, 
+				WR_DATA => sram_write_data, RD_DATA => sram_read_data, 
+				start => sram_start, done => sram_ready, 
+				rd_wr => sram_write, 
+				reset => reset, 
+				clk => clk
+        );
 
     clk_divider : ClockDivider generic map ( ticks => 100) port map ( clk_in => clk_in, clk_out => clk);
 
     khz_divider : ClockDivider generic map ( ticks => 500000) port map ( clk_in => clk, clk_out => khz_clk);
 
     sram_write_data <= adc_out;
+	 DAC_OUT <= adc_out;
 
-    process(start, reset, capture, display) is
+    process(start, clk, khz_clk, reset, capture, display, sram_addr, fsm_state, adc_ready, sram_ready, sram_read_data) is
         variable nstate : fsm_states := fsm_state;
         variable done_var, adc_convert_var, sram_start_var, sram_write_var: std_logic;
         variable DAC_var: std_logic_vector(7 downto 0);
         variable sram_write_data_var: std_logic_vector(7 downto 0);
-        variable clock_count_in : integer := clock_count;
 
         variable addr_count_in : integer := to_integer(unsigned(sram_addr));
     begin
@@ -92,7 +115,7 @@ begin
 
         case fsm_state is
             when rst =>
-                if(khz_clk'event and khz_clk = '1') then
+                if(khz_clk = '1') then
                     if (capture = '1') then
                         addr_count_in := addr_count_in + 1;
                         nstate := capturestate;
@@ -129,7 +152,7 @@ begin
 
         if(clk'event and clk = '1') then
             done <= done_var;
-            DAC_OUT <= DAC_var;
+            --DAC_OUT <= DAC_var;
             adc_convert <= adc_convert_var;
 
             sram_addr <= std_logic_vector(to_unsigned(addr_count_in, sram_addr'length));

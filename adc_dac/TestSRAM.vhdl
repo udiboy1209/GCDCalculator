@@ -5,30 +5,49 @@ library std;
 use std.textio.all;
 
 library work;
-use work.ADCInterface;
+use work.all;
 
-entity TestADC is
+entity TestSRAM is
 end entity;
 
-architecture Behave of TestADC is
-  signal A,output: std_logic_vector(7 downto 0);
-  signal start, done: std_logic;
-  signal clk: std_logic := '0';
-  signal reset: std_logic := '1';
-  signal  WR, CS, RD: std_logic;
-  signal INTR : std_logic := '1';
+architecture Behave of TestSRAM is
+  		signal mc_start, mc_write : std_logic;
+  		signal clk : std_logic := '0';
+  		signal reset : std_logic := '1';
+		signal sram_data1 : std_logic_vector(7 downto 0);
+		signal sram_address : std_logic_vector(12 downto 0);
+		signal mc_address :  std_logic_vector(12 downto 0);
+		signal mc_write_data :  std_logic_vector(7 downto 0) := "00001000";
+		signal mc_done , CS, WE, OE:  std_logic;
+		signal mc_read_data : std_logic_vector(7 downto 0);
 
-  component ADCInterface is 
-    port (
-        ADC_DATA: in std_logic_vector(7 downto 0);
-        CS, WR, RD: out std_logic;
-        INTR: in std_logic;
-        LED: out std_logic_vector(7 downto 0);
-        start, clk, reset: in std_logic;
-        done : out std_logic
-    );
+component SRAMInterface is 
+	port (
+		ADDR: out std_logic_vector(12 downto 0);
+		IO: inout std_logic_vector(7 downto 0);
+		CS, WE, OE: out std_logic;
+		ADDR_DATA: in std_logic_vector(12 downto 0);
+		WR_DATA: in std_logic_vector(7 downto 0);
+		RD_DATA: out std_logic_vector(7 downto 0);
+		start, rd_wr, clk, reset: in std_logic;
+		done: out std_logic
+	    );
 	end component;
 	
+
+component DataRegister is
+	generic (data_width:integer);
+	port (Din: in std_logic_vector(data_width-1 downto 0);
+	      Dout: out std_logic_vector(data_width-1 downto 0);
+	      clk, enable: in std_logic);
+	end component;
+
+	component DataRegister_bit is
+	port (Din : in std_logic;
+	      Dout: out std_logic;
+	      clk, enable: in std_logic);
+	end component;
+		
 	
   function to_string(x: string) return string is
       variable ret_val: string(1 to x'length);
@@ -65,47 +84,29 @@ architecture Behave of TestADC is
      end loop;
      return(ret_var);
   end to_bit_vector;
- signal out_clk : std_logic := '0';
- signal clk_out :std_logic;
 begin
 
   clk <= not clk after 10 ns; -- assume 10ns clock.
 
-	process(clk) 
-	variable count : integer := 250;
-	
-	begin 
-	
-	if(rising_edge(clk)) then 
-		count := count - 1;
-		clk_out <= out_clk;
-		
-		if(count = 0) then 
-		out_clk <= not out_clk;
-		count := 25;
-		else
-		out_clk <= out_clk;
-		end if;
-	end if;
-	
-	end process;
-
   -- reset process
+  	
   process
   begin
-     wait until clk_out = '1';
+     wait until clk = '1';
      reset <= '0';
      wait;
   end process;
+  
+  
 
  process 
     variable err_flag : boolean := false;
-    File INFILE: text open read_mode is "TraceADC.txt";
+    File INFILE: text open read_mode is "TraceSRAM.txt";
     FILE OUTFILE: text  open write_mode is "OUTPUTS.txt";
 
     ---------------------------------------------------
     -- edit the next few lines to customize
-    variable A_var: bit_vector ( 7 downto 0);
+    variable A_var: bit_vector ( 12 downto 0);
     variable output_var: bit_vector ( 7 downto 0);
     ----------------------------------------------------
     variable INPUT_LINE: Line;
@@ -113,51 +114,51 @@ begin
     variable LINE_COUNT: integer := 0;
     
   begin
-	start <= '1';
-    wait until clk_out = '1';
+	mc_start <= '1';
+	mc_write <= '1';
+    wait until clk = '1';
     
 
   
 		   
     while not endfile(INFILE) loop 
-    	  wait until clk_out = '0';
+    	  wait until clk = '0';
 
           LINE_COUNT := LINE_COUNT + 1;
 	
 	  readLine (INFILE, INPUT_LINE);
           read (INPUT_LINE, A_var);
 	      read (INPUT_LINE, output_var);
-          
-	--if(WR = '0') then
-	--INTR <= '0' after 218 us;
-    --end if;
-   
 		
           --------------------------------------
           -- from input-vector to DUT inputs
-	  A <= to_std_logic_vector(A_var);
+	  mc_address <= to_std_logic_vector(A_var);
+	  
+	  
 	  
           --------------------------------------
-		  
+			 write(OUTPUT_LINE, output_var);
+             writeline(OUTFILE, OUTPUT_LINE); 
 		   
           -- spin waiting for done
          while (true) loop
-            wait until clk_out = '1';
-          start <= '0';
-		 if(WR = '0') then
-			INTR <= '0' after 218 us;
-   		 end if;
+            wait until clk = '1';
+          mc_start <= '0';
+		-- if(WE  = '0') then
+		 --	wait for 30 ns;
+		 	--sram_data1 <= to_std_logic_vector(output_var);
+			
+   		 -- end if;
        
-         if(done = '1') then
-         	INTR <= '1';
+         if(mc_done = '1') then
               exit;
           end if;
          end loop;
 	  
-	  start <= '1';
+	  --start <= '1';
           --------------------------------------
 	  -- check outputs.
-	  if (( output /= to_std_logic_vector(output_var))) then
+	  if (( sram_data1 /= to_std_logic_vector(output_var))) then
              write(OUTPUT_LINE,to_string("ERROR: in RESULT, line "));
              write(OUTPUT_LINE, LINE_COUNT);
              writeline(OUTFILE, OUTPUT_LINE);
@@ -173,13 +174,17 @@ begin
     wait;
   end process;
 
-  dut: ADCInterface
-    port map (
-        ADC_DATA => A,
-        CS => CS, WR => WR, RD => RD,
-        INTR => INTR,
-        LED => output,
-        start => start, clk => clk_out, reset => reset, done => done
+  dut: SRAMInterface
+  port map (
+        ADDR => sram_address,
+        CS => CS, WE => WE, OE => OE,
+        ADDR_DATA => mc_address,
+        IO => sram_data1,
+        WR_DATA => mc_write_data,
+        RD_DATA => mc_read_data,
+        start => mc_start, rd_wr => mc_write, clk => clk, reset => reset,
+        done => mc_done
     );
+			
 
 end Behave;

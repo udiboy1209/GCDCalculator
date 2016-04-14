@@ -1,2 +1,3 @@
-ghdl -a RTLComponents.vhdl adc.vhdl TestADC.vhdl sram.vhdl ccu.vhdl
+ghdl -a components.vhdl adc.vhdl TestADC.vhdl sram.vhdl TestSRAM.vhdl ccu.vhdl
 ghdl -m TestADC
+ghdl -m TestSRAM

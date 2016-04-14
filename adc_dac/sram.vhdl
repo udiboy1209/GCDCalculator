@@ -9,7 +9,7 @@ entity SRAMInterface is
         ADDR_DATA: in std_logic_vector(12 downto 0);
         WR_DATA: in std_logic_vector(7 downto 0);
         RD_DATA: out std_logic_vector(7 downto 0);
-        start, write, clk, reset: in std_logic;
+        start, rd_wr, clk, reset: in std_logic;
         done: out std_logic
     );
 
@@ -18,9 +18,9 @@ end entity;
 
 architecture FSM of SRAMInterface is
     signal fsm_state: fsm_states := rst;
-    signal write_wait_count, read_wait_count : integer;
+    signal write_wait_count, read_wait_count : integer := 0;
 begin
-    process(IO, start, clk, reset, WR_DATA, IO, ADDR_DATA) is
+    process(IO, start, clk, reset, WR_DATA, IO, ADDR_DATA, fsm_state) is
         variable nstate : fsm_states := fsm_state;
         variable CS_var, WE_var, OE_var, done_var: std_logic;
         variable ADDR_var: std_logic_vector(12 downto 0);
@@ -28,6 +28,8 @@ begin
         variable write_wait_count_in : integer := write_wait_count;
         variable read_wait_count_in : integer := read_wait_count;
     begin
+		  read_wait_count_in := read_wait_count;
+		  write_wait_count_in := write_wait_count;
         -- Default High
         CS_var := '0';
         WE_var := '1';
@@ -40,11 +42,12 @@ begin
                 if (start = '1') then
                     ADDR_var := ADDR_DATA;
                     CS_var := '0';
-                    if (write = '1') then
+                    if (rd_wr = '1') then
                         nstate := writestate;
                         write_wait_count_in := 4;
                     else
                         nstate := readstate;
+								read_wait_count_in := 4;
                     end if;
                 end if;
             when writestate =>
