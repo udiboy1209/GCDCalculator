@@ -5,7 +5,7 @@ use work.all;
 
 entity CCU is
     port (
-        start, capture, display, clk, reset: in std_logic;
+        start, capture, display, clk_in, reset: in std_logic;
         done: out std_logic;
         DAC_OUT: out std_logic_vector(7 downto 0);
 
@@ -24,6 +24,8 @@ entity CCU is
 end entity;
 
 architecture FSM of CCU is
+    signal clk, khz_clk : std_logic;
+
     signal fsm_state: fsm_states := rst;
     signal clock_count: integer;
 
@@ -57,10 +59,19 @@ architecture FSM of CCU is
             done: out std_logic
         );
     end component;
+
+    component ClockDivider
+        generic (ticks : integer);
+        port ( clk_in : in std_logic; clk_out : out std_logic);
+    end component;
 begin
     adcc : ADCInterface port map (ADC_DATA => ADC_DATA, CS => CS_ADC, WR => WR, RD => RD, INTR => INTR, LED => adc_out, start => adc_convert, done => adc_ready, clk => clk, reset => reset);
 
     smc : SRAMInterface port map (ADDR => ADDR, CS => CS_SRAM, WE => WE, OE => OE, ADDR_DATA => sram_addr, WR_DATA => sram_write_data, RD_DATA => sram_read_data, start => sram_start, done => sram_ready, write => sram_write, reset => reset, clk => clk);
+
+    clk_divider : ClockDivider generic map ( ticks => 100) port map ( clk_in => clk_in, clk_out => clk);
+
+    khz_divider : ClockDivider generic map ( ticks => 500000) port map ( clk_in => clk, clk_out => khz_clk);
 
     sram_write_data <= adc_out;
 
@@ -81,17 +92,19 @@ begin
 
         case fsm_state is
             when rst =>
-                if (capture = '1') then
-                    addr_count_in := addr_count_in + 1;
-                    nstate := capturestate;
-                    adc_convert_var := '1';
-                else
-                    if (display = '1') then
+                if(khz_clk'event and khz_clk = '1') then
+                    if (capture = '1') then
                         addr_count_in := addr_count_in + 1;
-                        sram_write_var := '0';
-                        sram_start_var := '1';
-                        nstate := displaystate;
+                        nstate := capturestate;
+                        adc_convert_var := '1';
                     else
+                        if (display = '1') then
+                            addr_count_in := addr_count_in + 1;
+                            sram_write_var := '0';
+                            sram_start_var := '1';
+                            nstate := displaystate;
+                        else
+                        end if;
                     end if;
                 end if;
             when capturestate =>

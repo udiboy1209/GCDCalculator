@@ -102,3 +102,30 @@ begin
     end loop;
   end process; 
 end Serial;
+
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity ClockDivider is
+    generic (ticks : integer);
+    port ( clk_in : in std_logic; clk_out : out std_logic);
+end entity;
+
+architecture Count of ClockDivider is
+    signal count : integer := 0;
+    signal clk_div : std_logic := '0';
+begin
+    clk_out <= clk_div;
+
+    process(clk_in)
+    begin
+        if(clk_in'event and clk_in = '1') then
+            if (count = ticks) then
+                clk_div <= not clk_div;
+                count <= 0;
+            else
+                count <= count + 1;
+            end if;
+        end if;
+    end process;
+end Count;
