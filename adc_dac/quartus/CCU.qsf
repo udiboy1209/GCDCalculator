@@ -1,0 +1,119 @@
+# -------------------------------------------------------------------------- #
+#
+# Copyright (C) 1991-2015 Altera Corporation. All rights reserved.
+# Your use of Altera Corporation's design tools, logic functions 
+# and other software and tools, and its AMPP partner logic 
+# functions, and any output files from any of the foregoing 
+# (including device programming or simulation files), and any 
+# associated documentation or information are expressly subject 
+# to the terms and conditions of the Altera Program License 
+# Subscription Agreement, the Altera Quartus Prime License Agreement,
+# the Altera MegaCore Function License Agreement, or other 
+# applicable license agreement, including, without limitation, 
+# that your use is for the sole purpose of programming logic 
+# devices manufactured by Altera and sold by Altera or its 
+# authorized distributors.  Please refer to the applicable 
+# agreement for further details.
+#
+# -------------------------------------------------------------------------- #
+#
+# Quartus Prime
+# Version 15.1.0 Build 185 10/21/2015 SJ Lite Edition
+# Date created = 21:29:34  April 14, 2016
+#
+# -------------------------------------------------------------------------- #
+#
+# Notes:
+#
+# 1) The default values for assignments are stored in the file:
+#		CCU_assignment_defaults.qdf
+#    If this file doesn't exist, see file:
+#		assignment_defaults.qdf
+#
+# 2) Altera recommends that you do not modify this file. This
+#    file is updated automatically by the Quartus Prime software
+#    and any changes you make may be lost or overwritten.
+#
+# -------------------------------------------------------------------------- #
+
+
+set_global_assignment -name FAMILY "MAX V"
+set_global_assignment -name DEVICE 5M1270ZT144C5
+set_global_assignment -name TOP_LEVEL_ENTITY CCU
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION 15.1.0
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "21:29:34  APRIL 14, 2016"
+set_global_assignment -name LAST_QUARTUS_VERSION 15.1.0
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name DEVICE_FILTER_PACKAGE TQFP
+set_global_assignment -name DEVICE_FILTER_PIN_COUNT 144
+set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 5
+set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR "-1"
+set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (VHDL)"
+set_global_assignment -name EDA_OUTPUT_DATA_FORMAT VHDL -section_id eda_simulation
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
+set_location_assignment PIN_108 -to ADC_DATA[7]
+set_location_assignment PIN_107 -to ADC_DATA[6]
+set_location_assignment PIN_106 -to ADC_DATA[5]
+set_location_assignment PIN_104 -to ADC_DATA[4]
+set_location_assignment PIN_102 -to ADC_DATA[3]
+set_location_assignment PIN_98 -to ADC_DATA[2]
+set_location_assignment PIN_96 -to ADC_DATA[1]
+set_location_assignment PIN_94 -to ADC_DATA[0]
+set_location_assignment PIN_59 -to CS_ADC
+set_location_assignment PIN_51 -to DAC_OUT[5]
+set_location_assignment PIN_52 -to DAC_OUT[4]
+set_location_assignment PIN_53 -to DAC_OUT[3]
+set_location_assignment PIN_55 -to DAC_OUT[2]
+set_location_assignment PIN_57 -to DAC_OUT[1]
+set_location_assignment PIN_58 -to DAC_OUT[0]
+set_location_assignment PIN_62 -to INTR
+set_location_assignment PIN_134 -to IO[6]
+set_location_assignment PIN_63 -to RD
+set_location_assignment PIN_45 -to reset
+set_location_assignment PIN_48 -to start
+set_location_assignment PIN_66 -to WR
+set_location_assignment PIN_89 -to clk_in
+set_location_assignment PIN_123 -to ADDR[12]
+set_location_assignment PIN_122 -to ADDR[11]
+set_location_assignment PIN_121 -to ADDR[10]
+set_location_assignment PIN_120 -to ADDR[9]
+set_location_assignment PIN_119 -to ADDR[8]
+set_location_assignment PIN_118 -to ADDR[7]
+set_location_assignment PIN_117 -to ADDR[6]
+set_location_assignment PIN_114 -to ADDR[5]
+set_location_assignment PIN_113 -to ADDR[4]
+set_location_assignment PIN_112 -to ADDR[3]
+set_location_assignment PIN_111 -to ADDR[2]
+set_location_assignment PIN_110 -to ADDR[1]
+set_location_assignment PIN_109 -to ADDR[0]
+set_location_assignment PIN_139 -to CS_SRAM
+set_location_assignment PIN_133 -to WE
+set_location_assignment PIN_138 -to OE
+set_location_assignment PIN_131 -to IO[7]
+set_location_assignment PIN_129 -to IO[5]
+set_location_assignment PIN_132 -to IO[4]
+set_location_assignment PIN_127 -to IO[3]
+set_location_assignment PIN_130 -to IO[2]
+set_location_assignment PIN_125 -to IO[1]
+set_location_assignment PIN_124 -to IO[0]
+set_location_assignment PIN_43 -to capture
+set_location_assignment PIN_42 -to display
+set_location_assignment PIN_49 -to clk_div_out
+set_location_assignment PIN_50 -to clk_khz_out
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "NO HEAT SINK WITH STILL AIR"
+set_global_assignment -name EDA_TEST_BENCH_ENABLE_STATUS TEST_BENCH_MODE -section_id eda_simulation
+set_global_assignment -name EDA_NATIVELINK_SIMULATION_TEST_BENCH TestSRAM -section_id eda_simulation
+set_global_assignment -name EDA_TEST_BENCH_NAME TestADC -section_id eda_simulation
+set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id TestADC
+set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME TestADC -section_id TestADC
+set_global_assignment -name EDA_TEST_BENCH_FILE ../adc_dac/TestADC.vhdl -section_id TestADC
+set_global_assignment -name EDA_TEST_BENCH_NAME TestSRAM -section_id eda_simulation
+set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id TestSRAM
+set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME TestSRAM -section_id TestSRAM
+set_global_assignment -name EDA_TEST_BENCH_FILE ../TestSRAM.vhdl -section_id TestSRAM
+set_global_assignment -name VHDL_FILE ../ccu.vhdl
+set_global_assignment -name VHDL_FILE ../components.vhdl
+set_global_assignment -name VHDL_FILE ../sram.vhdl
+set_global_assignment -name VHDL_FILE ../adc.vhdl
